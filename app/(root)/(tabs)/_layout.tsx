@@ -1,7 +1,10 @@
-import { Tabs } from "expo-router";
+import { Tabs, useRouter } from "expo-router";
 import { Image, ImageSourcePropType, Text, View } from "react-native";
 
 import icons from "@/constants/icons";
+import { FIREBASE_AUTH } from "@/FirebaseConfig";
+import { onAuthStateChanged } from "firebase/auth";
+import { useEffect } from "react";
 
 const TabIcon = ({
   focused,
@@ -12,7 +15,7 @@ const TabIcon = ({
   icon: ImageSourcePropType;
   title: string;
 }) => (
-  <View className="flex-1 mt-3 flex flex-col items-center">
+  <View className="flex flex-col items-center flex-1 mt-3">
     <Image
       source={icon}
       tintColor={focused ? "#0061FF" : "#666876"}
@@ -32,6 +35,15 @@ const TabIcon = ({
 );
 
 const TabsLayout = () => {
+  const router = useRouter();
+  useEffect(() => {
+    onAuthStateChanged(FIREBASE_AUTH, (user) => {
+      if (!user) {
+        router.push("/sign-in");
+      }
+      console.log("user", user);
+    });
+  }, [router]);
   return (
     <Tabs
       screenOptions={{
@@ -52,26 +64,6 @@ const TabsLayout = () => {
           headerShown: false,
           tabBarIcon: ({ focused }) => (
             <TabIcon focused={focused} icon={icons.home} title="Home" />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: "Explore",
-          headerShown: false,
-          tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icon={icons.search} title="Explore" />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: "Profile",
-          headerShown: false,
-          tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icon={icons.person} title="Profile" />
           ),
         }}
       />
